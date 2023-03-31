@@ -12,14 +12,20 @@
     <link rel="stylesheet" href="css.css" />
   </head>
   <body>
-    <div id="instructions">
-      <p><b>R</b>otate</p>
-      <p><b>S</b>napping</p>
-      <p><b>N</b>ew item</p>
-      <p><b>D</b>elete selected item</p>
-      <p>save to <b>C</b>ookie</p>
-      <p><b>L</b>oad from cookie</p>
+    <div id="panel">
+      <div id="instructions">
+        <p><b>R</b>otate</p>
+        <p><b>S</b>napping</p>
+        <p><b>N</b>ew item</p>
+        <p><b>D</b>elete selected item</p>
+        <p>save to <b>C</b>ookie</p>
+        <p><b>L</b>oad from cookie</p>
+      </div>
+      <div id="raw-container">
+        <pre><code id="raw"></code></pre>
+      </div>
     </div>
+
     <div id="room"></div>
     <script src="./room.js"></script>
   </body>

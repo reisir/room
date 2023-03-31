@@ -125,6 +125,8 @@ function render() {
   });
 
   select();
+
+  $("#raw").text(JSON.stringify(room, null, 2));
 }
 
 function select() {
