@@ -63,19 +63,20 @@ $(document).on("keypress", function (keyEvent) {
       render();
       break;
     }
-    // save to (C)ookie
+    // (C)lear
     case 99: {
-      save();
-      break;
-    }
-    // (L)oad from cookie
-    case 108: {
-      load();
+      const response = prompt("Are you sure? type: 'yes'", "no");
+      if (response !== "yes") return;
+      clear();
       render();
       break;
     }
   }
 });
+
+function clear() {
+  room = [];
+}
 
 function save() {
   localStorage.setItem("room", JSON.stringify(room));
