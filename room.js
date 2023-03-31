@@ -1,18 +1,26 @@
 const scale = 2;
-const dimensions = [308, 442];
 
-let room = [];
+let room;
+let dimensions;
+
 let currentId;
 let snap = true;
 
 $(document).ready(() => {
-  room = JSON.parse(localStorage.getItem("room")) || [];
+  load();
   render();
 });
 
 $(document).on("keypress", function (keyEvent) {
   console.log(keyEvent.which);
   switch (keyEvent.which) {
+    // di(M)ensions
+    case 109: {
+      setDimensions();
+      save();
+      render();
+      break;
+    }
     // (D)elete
     case 100: {
       room = room
@@ -57,6 +65,7 @@ $(document).on("keypress", function (keyEvent) {
     // (L)oad from cookie
     case 108: {
       load();
+      render();
       break;
     }
   }
@@ -64,11 +73,12 @@ $(document).on("keypress", function (keyEvent) {
 
 function save() {
   localStorage.setItem("room", JSON.stringify(room));
+  localStorage.setItem("dimensions", JSON.stringify(dimensions));
 }
 
 function load() {
-  room = JSON.parse(localStorage.getItem("room"));
-  render();
+  room = JSON.parse(localStorage.getItem("room")) || [];
+  dimensions = JSON.parse(localStorage.getItem("dimensions")) || [300, 400];
 }
 
 function promptUser(property, defaultVal) {
@@ -127,6 +137,12 @@ function render() {
   select();
 
   $("#raw").text(JSON.stringify(room, null, 2));
+}
+
+function setDimensions() {
+  const w = prompt(`Enter room width`, 300);
+  const h = prompt(`Enter room height`, 400);
+  dimensions = [parseFloat(w) || 300, parseFloat(h) || 400];
 }
 
 function select() {
