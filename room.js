@@ -1,8 +1,6 @@
-const scale = 2;
-
+let scale = 2;
 let room;
 let dimensions;
-
 let currentId;
 let snap = true;
 
@@ -14,6 +12,13 @@ $(document).ready(() => {
 $(document).on("keypress", function (keyEvent) {
   console.log(keyEvent.which);
   switch (keyEvent.which) {
+    // scal(E)
+    case 101: {
+      setScale();
+      save();
+      render();
+      break;
+    }
     // di(M)ensions
     case 109: {
       setDimensions();
@@ -33,6 +38,7 @@ $(document).on("keypress", function (keyEvent) {
     // (R)otate
     case 114: {
       rotate();
+      save();
       render();
       break;
     }
@@ -46,10 +52,10 @@ $(document).on("keypress", function (keyEvent) {
     case 110: {
       const item = {
         id: room.length,
-        name: promptUser("name", "object"),
-        h: promptUser("height", "100") * 2,
-        w: promptUser("width", "100") * 2,
-        color: promptUser("color in hex", "#FFFFFF"),
+        name: prompt(`Enter item name`, ""),
+        h: parseFloat(prompt(`Enter item height`, 50)),
+        w: parseFloat(prompt(`Enter item width`, 150)),
+        color: prompt(`Enter item color`, "#FFFFFF"),
         top: 0,
         left: 0,
       };
@@ -73,16 +79,14 @@ $(document).on("keypress", function (keyEvent) {
 
 function save() {
   localStorage.setItem("room", JSON.stringify(room));
+  localStorage.setItem("scale", scale);
   localStorage.setItem("dimensions", JSON.stringify(dimensions));
 }
 
 function load() {
   room = JSON.parse(localStorage.getItem("room")) || [];
+  scale = JSON.parse(localStorage.getItem("scale")) || 2;
   dimensions = JSON.parse(localStorage.getItem("dimensions")) || [300, 400];
-}
-
-function promptUser(property, defaultVal) {
-  return prompt(`Please enter item ${property}`, defaultVal);
 }
 
 function rotate() {
@@ -90,12 +94,9 @@ function rotate() {
   const { w, h } = room[currentId];
   room[currentId].h = w;
   room[currentId].w = h;
-  render();
 }
 
 function render() {
-  console.log("render", { snap });
-
   $room = $("#room");
   $room.empty();
 
@@ -107,11 +108,11 @@ function render() {
       id: item.id,
     })
       .css({
-        width: item.w,
-        height: item.h,
+        width: `${parseFloat(item.w) * scale}px`,
+        height: `${parseFloat(item.h) * scale}px`,
         backgroundColor: item.color,
-        left: item.left,
-        top: item.top,
+        left: `${parseFloat(item.left) * scale}px`,
+        top: `${parseFloat(item.top) * scale}px`,
       })
       .append(`<h1>${item.name}</h1>`)
       .appendTo($room);
@@ -128,21 +129,34 @@ function render() {
     },
     stop: function (event, ui) {
       const id = this.id;
-      room[id].left = this.style.left;
-      room[id].top = this.style.top;
+      room[id].left = parseScalePrecision(this.style.left);
+      room[id].top = parseScalePrecision(this.style.top);
       save();
+      rawOutput();
     },
   });
 
   select();
+  rawOutput();
+}
 
+function rawOutput() {
   $("#raw").text(JSON.stringify(room, null, 2));
 }
 
+function parseScalePrecision(s) {
+  return (parseFloat(s) / scale).toPrecision(4);
+}
+
 function setDimensions() {
-  const w = prompt(`Enter room width`, 300);
-  const h = prompt(`Enter room height`, 400);
-  dimensions = [parseFloat(w) || 300, parseFloat(h) || 400];
+  const w = prompt(`Enter room width`, dimensions[0]);
+  const h = prompt(`Enter room height`, dimensions[1]);
+  dimensions = [parseFloat(w) || dimensions[0], parseFloat(h) || dimensions[1]];
+}
+
+function setScale() {
+  const s = prompt(`Enter render scale`, scale);
+  scale = parseFloat(s) || scale;
 }
 
 function select() {
