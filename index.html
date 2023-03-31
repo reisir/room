@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Room</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Abel&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+    <script src="https://code.jquery.com/ui/jquery-ui-git.js"></script>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+        font-family: "Abel", sans-serif;
+      }
+
+      html {
+        width: 100%;
+        height: 100%;
+      }
+
+      body {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        background: #efefef;
+      }
+
+      #room {
+        background: #fdffc5;
+        display: block;
+        margin: auto;
+        border: 2px solid #838383;
+      }
+
+      .object {
+        background: #a8a8ff;
+        border: 2px solid black;
+        box-sizing: border-box;
+        width: 160px;
+        height: 90px;
+        display: block;
+        position: absolute;
+      }
+
+      h1 {
+        width: 100%;
+        text-align: center;
+      }
+
+      #instructions {
+        position: fixed;
+        left: 0.5rem;
+        top: 0.5rem;
+        font-size: 1.5rem;
+        float: left;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="instructions">
+      <p><b>r</b>otate</p>
+      <p><b>s</b>napping</p>
+      <p><b>n</b>ew object</p>
+      <p>save to <b>c</b>ookie</p>
+      <p><b>l</b>oad from cookie</p>
+    </div>
+
+    <div id="room">
+      <h1>room :D</h1>
+    </div>
+
+    <script>
+      var scale = 1.6;
+      var roomDimensions = [308, 442];
+      var objects = [];
+      var currentId;
+      var i;
+      var bruh = [];
+
+      $(document).ready(() => {
+        $("#room")
+          .width(roomDimensions[0] * scale)
+          .height(roomDimensions[1] * scale);
+      });
+
+      $(document).keypress(function (keyEvent) {
+        if (keyEvent.which == 114) {
+          var currentW = $(currentId).width();
+          $(currentId).width($(currentId).height()).height(currentW);
+        } else if (keyEvent.which == 115) {
+          if ($(currentId).draggable("option", "snap") == true) {
+            $(currentId).draggable("option", "snap", false);
+          } else {
+            $(currentId).draggable("option", "snap", true);
+          }
+        } else if (keyEvent.which == 110) {
+          var object = {
+            name: promptUser("name", "object"),
+            objH: promptUser("height", "100"),
+            objW: promptUser("width", "100"),
+            color: promptUser("color in hex", "#FFFFFF"),
+          };
+          objects.push(object);
+          i++;
+          $("#room").append(newElement(object, i));
+          makeAllDraggable();
+        } else if (keyEvent.which == 99) {
+          //save to Cookie
+          /*var d = new Date('August 19, 2020 23:15:30');
+                var expires = "expires=" + d.toUTCString();
+                document.cookie = "roomArray" + "=" + JSON.stringify(objects) + ";" + expires + ";path=/";
+                console.log(JSON.stringify(objects));
+                */
+          Cookies.set("roomArr", JSON.stringify(objects), {
+            expires: 100,
+          });
+        } else if (keyEvent.which == 108) {
+          //Load from cookie
+          console.log(Cookies.get("roomArr"));
+          loadRoomArray(JSON.parse(Cookies.get("roomArr")));
+        } else if (keyEvent.which == 109) {
+          bruh = [
+            {
+              name: "bed",
+              objH: "200",
+              objW: "130",
+              color: "#ff952c",
+            },
+            {
+              name: "desk",
+              objH: "60",
+              objW: "138",
+              color: "#51ff1c",
+            },
+            {
+              name: "dresser",
+              objH: "36",
+              objW: "80",
+              color: "#f5ffa8",
+            },
+            {
+              name: "tv",
+              objW: "80",
+              objH: "52",
+              color: "#ffa8bf",
+            },
+            {
+              name: "chair",
+              objH: "55",
+              objW: "75",
+              color: "#a8a8ff",
+            },
+            {
+              name: "shelf",
+              objH: "52",
+              objW: "36",
+              color: "#a8a8ff",
+            },
+            {
+              name: "door",
+              objH: "10",
+              objW: "90",
+              color: "#a8a8ff",
+            },
+            {
+              name: "lamp",
+              objH: "33",
+              objW: "33",
+              color: "#a8a8ff",
+            },
+            {
+              name: "balcony",
+              objH: "10",
+              objW: "90",
+              color: "#a8a8ff",
+            },
+          ];
+
+          loadRoomArray(bruh);
+        }
+      });
+
+      function promptUser(property, defaultVal) {
+        var getValue = prompt("Please enter object " + property, defaultVal);
+        return getValue;
+      }
+
+      function newElement(object, i) {
+        var html =
+          '<div class="object" id="object' +
+          i +
+          '" style=" width:' +
+          object.objW * scale +
+          "px; height:" +
+          object.objH * scale +
+          "px; background: " +
+          object.color +
+          '"><h1>' +
+          object.name +
+          "</h1></div>";
+        return html;
+      }
+
+      function makeAllDraggable() {
+        $(".object").draggable({
+          snap: true,
+          containment: "parent",
+          cursor: "pointer",
+          start: function (event, ui) {
+            currentId = "#" + $(this).attr("id");
+            console.log(currentId);
+          },
+        });
+      }
+
+      function loadRoomArray(bruh) {
+        bruh.forEach(function (object) {
+          objects.push(object);
+        });
+
+        objects.forEach(function (object, i) {
+          //$('#room').append("<div class=\"object\" id=\"object" + i + "\" style=\" width:" + (object.objW * scale) + "px; height:" + (object.objH * scale) + "px; background: " + object.color + "\"><h1>" + object.name + "</h1></div>");
+          $("#room").append(newElement(object, i));
+          i++;
+        });
+
+        makeAllDraggable();
+
+        $(".object").click(function () {
+          currentId = "#" + $(this).attr("id");
+        });
+      }
+    </script>
+  </body>
+</html>
